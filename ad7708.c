@@ -29,40 +29,13 @@ static StatusTypeDef spiTransmit(ad7708_dev *dev, uint8_t *data, uint16_t len);
  */
 static StatusTypeDef setNextOperation(ad7708_dev *dev, SelectedReg reg, uint8_t rw, uint16_t len);
 
-/*!
- * @brief Configure the AD7708 IO pins
- * @param[in] dev - Pointer to the device structure
- * @param[in] pin1State - Direction of IO pin 1
- * @param[in] pin2State - Direction of IO pin 2
- * @return 0: case of success, error code otherwise.
- */
-static StatusTypeDef ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State);
 
-/*!
- * @brief Configure the AD7708 SF rate
- * @param[in] dev - Pointer to the device structure
- * @param[in] sfRate - Desired SF rate
- * @return 0: case of success, error code otherwise.
- */
-static StatusTypeDef sfRateConfig(ad7708_dev *dev, uint8_t sfRate);
 
-/*!
- * @brief Configure the AD7708 channel, range and polarity
- * @param[in] dev - Pointer to the device structure
- * @param[in] channel - Desired channel
- * @param[in] range - Desired range
- * @param[in] polarity - Desired polarity
- * @return 0: case of success, error code otherwise.
- */
-static StatusTypeDef channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity);
 
-/*!
- * @brief Configure the AD7708 mode
- * @param[in] dev - Pointer to the device structure
- * @param[in] mode -  desired mode
- * @return 0: case of success, error code otherwise.
- */
-static StatusTypeDef modeConfig(ad7708_dev *dev, AD7708_Mode mode);
+
+
+
+
 
 /****************** User Function Definitions *******************************/
 
@@ -77,6 +50,91 @@ StatusTypeDef ad7780_init(ad7708_dev *dev)
     status = channelConfig(dev, AD7708_Channel_2, AD7708_Range_20mV, AD7708_Unipolar);
     status = modeConfig(dev, AD7708_SingleConversion);
 }
+
+/*!
+ * @brief Configure the AD7708 mode
+ */
+StatusTypeDef modeConfig(ad7708_dev *dev, AD7708_Mode mode)
+{
+    StatusTypeDef status = AD7708_OK;
+
+    dev->modeReg.merged.mode = mode;
+    dev->modeReg.bits.chcon = AD7708_CHCON;
+    dev->modeReg.bits.refsel = AD7708_REFSEL;
+    dev->modeReg.bits.chop = AD7708_CHOP;
+    dev->modeReg.bits.negbuf = AD7708_NEGBUF; // TO:DO define these
+    dev->modeReg.bits.oscpd = AD7708_OSCPD;
+
+    status = setNextOperation(dev, CONTROL_REG, AD7708_Write, 1);
+
+    setCS(0);
+    status = spiTransmit(dev, &dev->controlReg.byte, 1);
+    setCS(1);
+
+    return status;
+}
+
+/*!
+ * @brief Configure the AD7708 channel, range and polarity
+ */
+StatusTypeDef channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity)
+{
+    StatusTypeDef status = AD7708_OK;
+
+    dev->controlReg.merged.channelConfig = channel;
+    dev->controlReg.merged.range = range;
+    dev->controlReg.bits.ub = polarity;
+
+    status = setNextOperation(dev, CONTROL_REG, AD7708_Write, 1);
+
+    setCS(0);
+    status = spiTransmit(dev, &dev->controlReg.byte, 1);
+    setCS(1);
+
+    return status;
+}
+
+/*!
+ * @brief Configure the AD7708 SF rate
+ */
+StatusTypeDef sfRateConfig(ad7708_dev *dev, uint8_t sfRate)
+{
+    StatusTypeDef status = AD7708_OK;
+
+    dev->filterReg.byte = sfRate;
+
+    status = setNextOperation(dev, FILTER_REG, AD7708_Write, 1);
+
+    setCS(0);
+    status = spiTransmit(dev, &dev->filterReg.byte, 1);
+    setCS(1);
+
+    return status;
+}
+
+/*!
+ * @brief Configure the AD7708 IO pins
+ */
+StatusTypeDef ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State)
+{
+    StatusTypeDef status = AD7708_OK;
+
+    dev->ioControlReg.bits.p1dir = pin1State;
+    dev->ioControlReg.bits.p2dir = pin2State; // TODO: Define io read and write functions
+    dev->ioControlReg.merged.zeros1 = 0;      // TODO: These bits are default 0, but should be set to 0 anyway?????
+    dev->ioControlReg.merged.zeros2 = 0;
+
+    status = setNextOperation(dev, IO_CONTROL_REG, AD7708_Write, 1);
+
+    setCS(0);
+    status = spiTransmit(dev, &dev->ioControlReg.byte, 1); // 1 byte ???
+    setCS(1);
+
+    return status;
+}
+
+
+
 
 /****************** Static Function Definitions *******************************/
 
@@ -122,84 +180,8 @@ static StatusTypeDef spiTransmit(ad7708_dev *dev, uint8_t *data, uint16_t len)
     return status;
 }
 
-/*!
- * @brief Configure the AD7708 IO pins
- */
-static StatusTypeDef ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State)
-{
-    StatusTypeDef status = AD7708_OK;
 
-    dev->ioControlReg.bits.p1dir = pin1State;
-    dev->ioControlReg.bits.p2dir = pin2State; // TODO: Define io read and write functions
-    dev->ioControlReg.merged.zeros1 = 0;      // TODO: These bits are default 0, but should be set to 0 anyway?????
-    dev->ioControlReg.merged.zeros2 = 0;
 
-    status = setNextOperation(dev, IO_CONTROL_REG, AD7708_Write, 1);
 
-    setCS(0);
-    status = spiTransmit(dev, &dev->ioControlReg.byte, 1); // 1 byte ???
-    setCS(1);
 
-    return status;
-}
 
-/*!
- * @brief Configure the AD7708 SF rate
- */
-static StatusTypeDef sfRateConfig(ad7708_dev *dev, uint8_t sfRate)
-{
-    StatusTypeDef status = AD7708_OK;
-
-    dev->filterReg.byte = sfRate;
-
-    status = setNextOperation(dev, FILTER_REG, AD7708_Write, 1);
-
-    setCS(0);
-    status = spiTransmit(dev, &dev->filterReg.byte, 1);
-    setCS(1);
-
-    return status;
-}
-
-/*!
- * @brief Configure the AD7708 channel, range and polarity
- */
-static StatusTypeDef channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity)
-{
-    StatusTypeDef status = AD7708_OK;
-
-    dev->controlReg.merged.channelConfig = channel;
-    dev->controlReg.merged.range = range;
-    dev->controlReg.bits.ub = polarity;
-
-    status = setNextOperation(dev, CONTROL_REG, AD7708_Write, 1);
-
-    setCS(0);
-    status = spiTransmit(dev, &dev->controlReg.byte, 1);
-    setCS(1);
-
-    return status;
-}
-
-/*!
- * @brief Configure the AD7708 mode
- */
-static StatusTypeDef modeConfig(ad7708_dev *dev, AD7708_Mode mode)
-{
-    StatusTypeDef status = AD7708_OK;
-
-    dev->modeReg.merged.mode = mode;
-    dev->modeReg.bits.chcon = AD7708_CHCON;
-    dev->modeReg.bits.refsel = AD7708_REFSEL;
-    dev->modeReg.bits.chop = AD7708_CHOP;
-    dev->modeReg.bits.negbuf = AD7708_NEGBUF; // TO:DO define these
-    dev->modeReg.bits.oscpd = AD7708_OSCPD;
-
-    status = setNextOperation(dev, CONTROL_REG, AD7708_Write, 1);
-
-    setCS(0);
-    status = spiTransmit(dev, &dev->controlReg.byte, 1);
-    setCS(1);
-
-    return status;
-}

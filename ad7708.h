@@ -3,7 +3,43 @@
 
 #include "ad7708_defs.h"
 
+/*!
+*
+*/
+StatusTypeDef ad7780_init(ad7708_dev *dev);
 
+/*!
+ * @brief Configure the AD7708 mode
+ * @param[in] dev - Pointer to the device structure
+ * @param[in] mode -  desired mode
+ * @return 0: case of success, error code otherwise.
+ */
+StatusTypeDef modeConfig(ad7708_dev *dev, AD7708_Mode mode);
 
+/*!
+ * @brief Configure the AD7708 channel, range and polarity
+ * @param[in] dev - Pointer to the device structure
+ * @param[in] channel - Desired channel
+ * @param[in] range - Desired range
+ * @param[in] polarity - Desired polarity
+ * @return 0: case of success, error code otherwise.
+ */
+StatusTypeDef channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity);
 
+/*!
+ * @brief Configure the AD7708 SF rate
+ * @param[in] dev - Pointer to the device structure
+ * @param[in] sfRate - Desired SF rate
+ * @return 0: case of success, error code otherwise.
+ */
+StatusTypeDef sfRateConfig(ad7708_dev *dev, uint8_t sfRate);
+
+/*!
+ * @brief Configure the AD7708 IO pins
+ * @param[in] dev - Pointer to the device structure
+ * @param[in] pin1State - Direction of IO pin 1
+ * @param[in] pin2State - Direction of IO pin 2
+ * @return 0: case of success, error code otherwise.
+ */
+StatusTypeDef ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State);
 #endif
