@@ -29,13 +29,23 @@ static StatusTypeDef spiTransmit(ad7708_dev *dev, uint8_t *data, uint16_t len);
  */
 static StatusTypeDef setNextOperation(ad7708_dev *dev, SelectedReg reg, uint8_t rw, uint16_t len);
 
+/*!
+ * @brief Recieve data from the AD7708
+ * @param[in] dev - Pointer to the device structure
+ * @param[in] data - Pointer to the data to be recieved
+ * @return 0: case of success, error code otherwise.
+ */
+static StatusTypeDef spiRecieve(ad7708_dev *dev, uint16_t *data, uint16_t len);
 
-
-
-
-
-
-
+/*!
+* @brief Read data from the AD7708 registers
+* @param[in] dev - Pointer to the device structure
+* @param[in] reg - Register to be accessed
+* @param[in] data - Pointer to the data to be recieved
+* @param[in] len - Length of the data to be recieved
+* @return 0: case of success, error code otherwise.
+*/
+static StatusTypeDef ad7708_readReg(ad7708_dev *dev, SelectedReg reg, uint16_t *data, uint16_t len);
 
 /****************** User Function Definitions *******************************/
 
@@ -54,7 +64,7 @@ StatusTypeDef ad7780_init(ad7708_dev *dev)
 /*!
  * @brief Configure the AD7708 mode
  */
-StatusTypeDef modeConfig(ad7708_dev *dev, AD7708_Mode mode)
+StatusTypeDef ad7708_modeConfig(ad7708_dev *dev, AD7708_Mode mode)
 {
     StatusTypeDef status = AD7708_OK;
 
@@ -77,7 +87,7 @@ StatusTypeDef modeConfig(ad7708_dev *dev, AD7708_Mode mode)
 /*!
  * @brief Configure the AD7708 channel, range and polarity
  */
-StatusTypeDef channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity)
+StatusTypeDef ad7708_channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity)
 {
     StatusTypeDef status = AD7708_OK;
 
@@ -97,7 +107,7 @@ StatusTypeDef channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Rang
 /*!
  * @brief Configure the AD7708 SF rate
  */
-StatusTypeDef sfRateConfig(ad7708_dev *dev, uint8_t sfRate)
+StatusTypeDef ad7708_sfRateConfig(ad7708_dev *dev, uint8_t sfRate)
 {
     StatusTypeDef status = AD7708_OK;
 
@@ -115,7 +125,7 @@ StatusTypeDef sfRateConfig(ad7708_dev *dev, uint8_t sfRate)
 /*!
  * @brief Configure the AD7708 IO pins
  */
-StatusTypeDef ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State)
+StatusTypeDef ad7708_ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State)
 {
     StatusTypeDef status = AD7708_OK;
 
@@ -133,8 +143,22 @@ StatusTypeDef ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State)
     return status;
 }
 
+/*!
+ * @brief Calibrate the ad7708
+ */
+StatusTypeDef ad7708_calibrate(ad7708_dev *dev)
+{
+    ad7708_channelConfig(dev, AD7708_Channel_1, AD7708_Range_20mV, AD7708_Unipolar);
+    ad7708_modeConfig(dev, AD7708_InternalZeroCalibration); // TODO: Sytem or Internal calibration??
+    ad7708_readReg(dev, MODE_REG, &dev->modeReg.byte, 1);
 
+    if(dev->modeReg.merged.mode == AD7708_Idle)
+    {
+         ad7708_modeConfig(dev, AD7708_InternalFullCalibration);
+          
+    }
 
+}
 
 /****************** Static Function Definitions *******************************/
 
@@ -180,8 +204,33 @@ static StatusTypeDef spiTransmit(ad7708_dev *dev, uint8_t *data, uint16_t len)
     return status;
 }
 
+/*!
+ * @brief Recieve data from the AD7708
+ */
+static StatusTypeDef spiRecieve(ad7708_dev *dev, uint16_t *data, uint16_t len) // is there any problem that i pass 8 bit data to 16 bit pointer?
+{
+    StatusTypeDef status = AD7708_OK;
 
+    if (HAL_SPI_Receive(&dev->intf, data, len, AD7708_TIMEOUT) != AD7708_OK)
+    {
+        status = AD7708_ERROR;
+    }
 
+    return status;
+}
 
+/*!
+* @brief Read data from the AD7708 registers
+*/
+static StatusTypeDef ad7708_readReg(ad7708_dev *dev, SelectedReg reg, uint16_t *data, uint16_t len)
+{
+    StatusTypeDef status = AD7708_OK;
 
+    status = setNextOperation(dev, reg, AD7708_Read, len); 
 
+    setCS(0);
+    status = spiRecieve(dev, data, len);   
+    setCS(1);
+
+    return status;
+}

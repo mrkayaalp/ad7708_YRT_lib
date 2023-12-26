@@ -14,7 +14,7 @@ StatusTypeDef ad7780_init(ad7708_dev *dev);
  * @param[in] mode -  desired mode
  * @return 0: case of success, error code otherwise.
  */
-StatusTypeDef modeConfig(ad7708_dev *dev, AD7708_Mode mode);
+StatusTypeDef ad7708_modeConfig(ad7708_dev *dev, AD7708_Mode mode);
 
 /*!
  * @brief Configure the AD7708 channel, range and polarity
@@ -24,7 +24,7 @@ StatusTypeDef modeConfig(ad7708_dev *dev, AD7708_Mode mode);
  * @param[in] polarity - Desired polarity
  * @return 0: case of success, error code otherwise.
  */
-StatusTypeDef channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity);
+StatusTypeDef ad7708_channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity);
 
 /*!
  * @brief Configure the AD7708 SF rate
@@ -32,7 +32,7 @@ StatusTypeDef channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Rang
  * @param[in] sfRate - Desired SF rate
  * @return 0: case of success, error code otherwise.
  */
-StatusTypeDef sfRateConfig(ad7708_dev *dev, uint8_t sfRate);
+StatusTypeDef ad7708_sfRateConfig(ad7708_dev *dev, uint8_t sfRate);
 
 /*!
  * @brief Configure the AD7708 IO pins
@@ -41,5 +41,11 @@ StatusTypeDef sfRateConfig(ad7708_dev *dev, uint8_t sfRate);
  * @param[in] pin2State - Direction of IO pin 2
  * @return 0: case of success, error code otherwise.
  */
-StatusTypeDef ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State);
+StatusTypeDef ad7708_ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State);
+
+/*!
+* @brief Calibrate the ad7708
+*/
+StatusTypeDef ad7708_calibrate(ad7708_dev *dev);
+
 #endif
