@@ -9,12 +9,17 @@
 StatusTypeDef ad7780_init(ad7708_dev *dev);
 
 /*!
- * @brief Configure the AD7708 mode
+ * @brief Configure the AD7708 modes
  * @param[in] dev - Pointer to the device structure
  * @param[in] mode -  desired mode
+ * @param[in] chcon - Channel configuration 0:8ch or 1:10ch
+ * @param[in] refsel - 0: REFIN1 active, 1: REFIN2 active
+ * @param[in] chop - 0: chop disable 1:chop enable
+ * @param[in] negbuf - 0: pseudo-differential mod, 1: Not using AINCOM
+ * @param[in] oscpd -  0: Ossilator not shut off in stnadby mode, 1: Ossilator shut off in stnadby mode
  * @return 0: case of success, error code otherwise.
  */
-StatusTypeDef ad7708_modeConfig(ad7708_dev *dev, AD7708_Mode mode);
+StatusTypeDef ad7708_modeConfig(ad7708_dev* dev, AD7708_Mode mode, uint8_t chcon, uint8_t refsel, uint8_t chop, uint8_t negbuf, uint8_t oscpd);
 
 /*!
  * @brief Configure the AD7708 channel, range and polarity
@@ -51,5 +56,20 @@ StatusTypeDef ad7708_ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2St
 * @note Use this function after configurate the selected channel
 */
 StatusTypeDef ad7708_calibrate(ad7708_dev *dev, AD7708_Channel channel);
+
+/*!
+* @brief AD7708 start continuous conversion mode
+* @param[in] dev - Pointer to the device structure
+* @return 0: case of success, error code otherwise.
+*/
+StatusTypeDef ad7708_startContinuousConversion(ad7708_dev* dev);
+
+/*!
+* @brief Read 16 bit data from the AD7708 data register
+* @param[in] dev - Pointer to the device structure
+* @param[out] data - Pointer to the data buffer
+* @return 0: case of success, error code otherwise.
+*/
+uint16_t ad7708_readData(ad7708_dev* dev, uint16_t* data);
 
 #endif

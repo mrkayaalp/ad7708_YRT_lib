@@ -62,18 +62,18 @@ StatusTypeDef ad7780_init(ad7708_dev* dev)
 }
 
 /*!
- * @brief Configure the AD7708 mode
+ * @brief Configure the AD7708 modes
  */
-StatusTypeDef ad7708_modeConfig(ad7708_dev* dev, AD7708_Mode mode)
+StatusTypeDef ad7708_modeConfig(ad7708_dev* dev, AD7708_Mode mode, uint8_t chcon, uint8_t refsel, uint8_t chop, uint8_t negbuf, uint8_t oscpd)
 {
     StatusTypeDef status = AD7708_OK;
 
     dev->modeReg.merged.mode = mode;
-    dev->modeReg.bits.chcon = AD7708_CHCON;
-    dev->modeReg.bits.refsel = AD7708_REFSEL;
-    dev->modeReg.bits.chop = AD7708_CHOP;
-    dev->modeReg.bits.negbuf = AD7708_NEGBUF; // TO:DO define these
-    dev->modeReg.bits.oscpd = AD7708_OSCPD;
+    dev->modeReg.bits.chcon = chcon;
+    dev->modeReg.bits.refsel = refsel;
+    dev->modeReg.bits.chop = chop;
+    dev->modeReg.bits.negbuf = negbuf;
+    dev->modeReg.bits.oscpd = oscpd;
 
     status = setNextOperation(dev, CONTROL_REG, AD7708_Write, 1);
 
@@ -167,6 +167,30 @@ StatusTypeDef ad7708_calibrate(ad7708_dev* dev, AD7708_Channel channel)
     return status;
 }
 
+/*!
+* @brief AD7708 start continuous conversion mode
+*/
+StatusTypeDef ad7708_startContinuousConversion(ad7708_dev* dev) {
+    uint8_t status;
+    status = ad7708_modeConfig(dev, AD7708_ContinuousConversion, AD7708_CHCON, AD7708_REFSEL, AD7708_CHOP, AD7708_NEGBUF, AD7708_OSCPD); 
+    //status = ad7708_channelConfig(dev, channel, AD7708_Range_20mV, AD7708_Unipolar); --->> channel config should be done before mode config ??
+
+    return status;
+}
+
+/*!
+* @brief Read 16 bit data from the AD7708 data register
+*/
+uint16_t ad7708_readData(ad7708_dev* dev, uint16_t* data) {
+    uint8_t status;
+    status =  setNextOperation(dev, DATA_REG, AD7708_Read, 1);
+
+    setCS(0);
+    status = spiRecieve(dev, data, 2);
+    setCS(1);
+
+    return data;
+}
 /****************** Static Function Definitions *******************************/
 
 /*!

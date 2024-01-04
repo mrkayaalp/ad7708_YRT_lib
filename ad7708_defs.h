@@ -4,14 +4,22 @@
 #include "stdint.h"
 
 /****************** Device Specifications *******************************/
+
+/*! @name Device Pin Configuraiton */
 #define AD7708_CS_Pin GPIO_PIN_4
 #define AD7708_CS_GPIO_Port GPIOC
+#define RDY_Pin GPIO_PIN_5 //EXTI Falling Edge
+#define RDY_GPIO_Port GPIOC
 #define AD7708_INTF SPI1 // SPI'i büyük harfle yazmam problem yaratır mı?
 
+/*! @name Device Limits & Configs*/
 #define AD7708_MAX_TIMEOUT 500  // ms TODO: timeout değerini belirle
 #define AD7708_SF_Rate 150 // Hz TODO: sample rate'i belirle
-
 #define AD7708_CHCON 1 // Channel configuration !! IMPORTANT !! 0->8 or 1->10
+#define AD7708_REFSEL 0 // 0: REFIN1 active, 1: REFIN2 active
+#define AD7708_NEGBUF 0 // 0: pseudo-differential mod (connect AINCOM to AGND), 1: Not using AINCOM
+#define AD7708_CHOP 0 // 0: chop disable 1:chop enable
+#define AD7708_OSCPD 0 // 0: Ossilator not shut off in stnadby mode, 1: Ossilator shut off in stnadby mode
 
 /****************** Device Commands *******************************/
 #define AD7708_Read 0x01U
@@ -347,6 +355,7 @@ typedef struct
     ControlReg controlReg;
     ModeReg modeReg;
     ad7708_delay_fptr_t delay_ms;
+    uint16_t* dataBuffer; //TO-DO uint16 int16??
 } ad7708_dev;
 
 #endif
