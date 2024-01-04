@@ -44,8 +44,12 @@ StatusTypeDef ad7708_sfRateConfig(ad7708_dev *dev, uint8_t sfRate);
 StatusTypeDef ad7708_ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State);
 
 /*!
-* @brief Calibrate the ad7708
+* @brief Calibrate the ad7708 selected channel
+* @param[in] dev - Pointer to the device structure
+* @param[in] channel - Desired channel
+* @return 0: case of success, error code otherwise.
+* @note Use this function after configurate the selected channel
 */
-StatusTypeDef ad7708_calibrate(ad7708_dev *dev);
+StatusTypeDef ad7708_calibrate(ad7708_dev *dev, AD7708_Channel channel);
 
 #endif

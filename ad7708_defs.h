@@ -8,7 +8,7 @@
 #define AD7708_CS_GPIO_Port GPIOC
 #define AD7708_INTF SPI1 // SPI'i büyük harfle yazmam problem yaratır mı?
 
-#define AD7708_IMEOUT 500  // ms TODO: timeout değerini belirle
+#define AD7708_MAX_TIMEOUT 500  // ms TODO: timeout değerini belirle
 #define AD7708_SF_Rate 150 // Hz TODO: sample rate'i belirle
 
 #define AD7708_CHCON 1 // Channel configuration !! IMPORTANT !! 0->8 or 1->10
