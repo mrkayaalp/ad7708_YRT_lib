@@ -49,9 +49,24 @@ static StatusTypeDef ad7708_readReg(ad7708_dev* dev, SelectedReg reg, uint16_t* 
 
 /****************** User Function Definitions *******************************/
 
+/*!
+ * @brief Are you there AD7708?
+ */
+uint8_t ad7708_areYouThere(ad7708_dev* dev) {
+    uint8_t status;
+    uint8_t id;
+
+    status = ad7708_readReg(dev, ID_REG, &id, 1);
+
+    if ((id >> 4) == AD7708_ID) { return 0; }
+    else { return 1; }
+}
+
+
 StatusTypeDef ad7780_init(ad7708_dev* dev)
 {
     StatusTypeDef status = AD7708_OK;
+    dev->id = AD7708_ID;
     dev->intf = AD7708_INTF;
     dev->delay_ms = HAL_Delay; // delayOS if used in freeRTOS
 
@@ -172,7 +187,7 @@ StatusTypeDef ad7708_calibrate(ad7708_dev* dev, AD7708_Channel channel)
 */
 StatusTypeDef ad7708_startContinuousConversion(ad7708_dev* dev) {
     uint8_t status;
-    status = ad7708_modeConfig(dev, AD7708_ContinuousConversion, AD7708_CHCON, AD7708_REFSEL, AD7708_CHOP, AD7708_NEGBUF, AD7708_OSCPD); 
+    status = ad7708_modeConfig(dev, AD7708_ContinuousConversion, AD7708_CHCON, AD7708_REFSEL, AD7708_CHOP, AD7708_NEGBUF, AD7708_OSCPD);
     //status = ad7708_channelConfig(dev, channel, AD7708_Range_20mV, AD7708_Unipolar); --->> channel config should be done before mode config ??
 
     return status;
@@ -183,7 +198,7 @@ StatusTypeDef ad7708_startContinuousConversion(ad7708_dev* dev) {
 */
 uint16_t ad7708_readData(ad7708_dev* dev, uint16_t* data) {
     uint8_t status;
-    status =  setNextOperation(dev, DATA_REG, AD7708_Read, 1);
+    status = setNextOperation(dev, DATA_REG, AD7708_Read, 1);
 
     setCS(0);
     status = spiRecieve(dev, data, 2);
@@ -257,7 +272,7 @@ static StatusTypeDef ad7708_readReg(ad7708_dev* dev, SelectedReg reg, uint16_t* 
 {
     StatusTypeDef status = AD7708_OK;
 
-    status = setNextOperation(dev, reg, AD7708_Read, len);
+    status = setNextOperation(dev, reg, AD7708_Read, 1);
 
     setCS(0);
     status = spiRecieve(dev, data, len);

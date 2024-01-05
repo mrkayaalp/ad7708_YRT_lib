@@ -6,7 +6,7 @@
 /*!
 *
 */
-StatusTypeDef ad7780_init(ad7708_dev *dev);
+StatusTypeDef ad7780_init(ad7708_dev* dev);
 
 /*!
  * @brief Configure the AD7708 modes
@@ -29,7 +29,7 @@ StatusTypeDef ad7708_modeConfig(ad7708_dev* dev, AD7708_Mode mode, uint8_t chcon
  * @param[in] polarity - Desired polarity
  * @return 0: case of success, error code otherwise.
  */
-StatusTypeDef ad7708_channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity);
+StatusTypeDef ad7708_channelConfig(ad7708_dev* dev, AD7708_Channel channel, AD7708_Range range, AD7708_Polarity polarity);
 
 /*!
  * @brief Configure the AD7708 SF rate
@@ -37,7 +37,7 @@ StatusTypeDef ad7708_channelConfig(ad7708_dev *dev, AD7708_Channel channel, AD77
  * @param[in] sfRate - Desired SF rate
  * @return 0: case of success, error code otherwise.
  */
-StatusTypeDef ad7708_sfRateConfig(ad7708_dev *dev, uint8_t sfRate);
+StatusTypeDef ad7708_sfRateConfig(ad7708_dev* dev, uint8_t sfRate);
 
 /*!
  * @brief Configure the AD7708 IO pins
@@ -46,7 +46,7 @@ StatusTypeDef ad7708_sfRateConfig(ad7708_dev *dev, uint8_t sfRate);
  * @param[in] pin2State - Direction of IO pin 2
  * @return 0: case of success, error code otherwise.
  */
-StatusTypeDef ad7708_ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2State);
+StatusTypeDef ad7708_ioConfig(ad7708_dev* dev, uint8_t pin1State, uint8_t pin2State);
 
 /*!
 * @brief Calibrate the ad7708 selected channel
@@ -55,7 +55,7 @@ StatusTypeDef ad7708_ioConfig(ad7708_dev *dev, uint8_t pin1State, uint8_t pin2St
 * @return 0: case of success, error code otherwise.
 * @note Use this function after configurate the selected channel
 */
-StatusTypeDef ad7708_calibrate(ad7708_dev *dev, AD7708_Channel channel);
+StatusTypeDef ad7708_calibrate(ad7708_dev* dev, AD7708_Channel channel);
 
 /*!
 * @brief AD7708 start continuous conversion mode
@@ -71,5 +71,12 @@ StatusTypeDef ad7708_startContinuousConversion(ad7708_dev* dev);
 * @return 0: case of success, error code otherwise.
 */
 uint16_t ad7708_readData(ad7708_dev* dev, uint16_t* data);
+
+/*!
+* @brief Are you there AD7708?
+* @param[in] dev - Pointer to the device structure
+* @return 0: yes im here 1: silence
+*/
+uint8_t ad7708_areYouThere(ad7708_dev* dev);
 
 #endif

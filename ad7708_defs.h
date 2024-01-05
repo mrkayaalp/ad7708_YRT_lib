@@ -13,6 +13,7 @@
 #define AD7708_INTF SPI1 // SPI'i büyük harfle yazmam problem yaratır mı?
 
 /*! @name Device Limits & Configs*/
+#define AD7708_ID  0x05U // Device ID
 #define AD7708_MAX_TIMEOUT 500  // ms TODO: timeout değerini belirle
 #define AD7708_SF_Rate 150 // Hz TODO: sample rate'i belirle
 #define AD7708_CHCON 1 // Channel configuration !! IMPORTANT !! 0->8 or 1->10
@@ -345,9 +346,11 @@ typedef union
 
 } IOControlReg;
 
+
 /*! @name API device structure */
 typedef struct
 {
+    uint8_t id;
     uint8_t intf;
     CommReg commReg;
     IOControlReg ioControlReg;
@@ -356,6 +359,7 @@ typedef struct
     ModeReg modeReg;
     ad7708_delay_fptr_t delay_ms;
     uint16_t* dataBuffer; //TO-DO uint16 int16??
+
 } ad7708_dev;
 
 #endif
